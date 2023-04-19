@@ -10,3 +10,10 @@ Falta el def player con comandos
 PLAYER
 Falta sprites y nueva clase de bullet
 Display
+
+
+
+MEJORAS
+-Un sprite que reduzca o aumente la velocidad de los targets
+-Un sprite que aumente el tamaño de los swords
+-Un sprite que protecta el target( shield)
