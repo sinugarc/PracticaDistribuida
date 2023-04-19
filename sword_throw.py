@@ -19,13 +19,26 @@ GREEN=(0,255,0)
 BLUE=(0,0,255)
 YELLOW=(255,255,0)
 
+PLAYER1=0
+PLAYER2=1
+
 pygame.init()
 pygame.mixer.init()
 screen=pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("Sword throw")
 clock=pygame.time.Clock()
 
+font_name=pygame.font.match_font('arial')
+def draw_text(surf,text,size,x,y):
+    font =pygame.font.Font(font_name,size)
+    text_surface =font.render(text, True, WHITE)
+    text_rect =text_surface.get_rect()
+    text_rect.midtop=(x,y)
+    surf.blit(text_surface,text_rect)
+    
+    
 #Def de clases
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -33,7 +46,9 @@ class Player(pygame.sprite.Sprite):
         self.image=pygame.Surface((50,40))
         self.image.fill(GREEN)
         self.rect=self.image.get_rect()
+        
         self.rect.x=5
+        
         self.rect.y=HEIGHT/2 #en el lado
         self.angle=0 #esto todavia no sabemos cambiarlo
         self.speedy=0 # en principio la velocidad es constante
@@ -66,7 +81,7 @@ class Sword(pygame.sprite.Sprite):
         self.rect.centerx= x #empieza con la posicion del player
         self.rect.centery= y
         self.angle=angle
-        self.speed= 10
+        self.speed= 10  #si somos el player 2, esto es negativo
         
         
     def update(self):
@@ -86,7 +101,9 @@ class Target(pygame.sprite.Sprite):
         self.image=pygame.Surface((20,20))
         self.image.fill(RED)
         self.rect=self.image.get_rect()
+        
         self.rect.x=WIDTH-5
+        
         self.rect.y=HEIGHT/2
         self.speedy=1
         
@@ -107,11 +124,11 @@ all_sprites=pygame.sprite.Group()
 swords=pygame.sprite.Group()
 
 
+
 player=Player()
 all_sprites.add(player)
 target=Target()
 all_sprites.add(target)
-
 
 
 #Game loop
@@ -138,6 +155,7 @@ while running:
     #Draw
     screen.fill(BLACK)
     all_sprites.draw(screen)
+    draw_text(screen,str(score),18, WIDTH/2,10)
     pygame.display.flip() #se dibuja todo a la vez
     
 pygame.quit()
