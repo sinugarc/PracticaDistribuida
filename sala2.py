@@ -56,8 +56,25 @@ class Sword():
         pass
 
 class Target():
-    def __init__(self):
-        pass
+        def __init__(self,side,velocity):
+        self.side = side
+        if side == LEFT_PLAYER:
+            self.pos = [2, SIZE[Y]//2]
+        else:
+            self.pos = [SIZE[X] - 2, SIZE[Y]//2]
+        self.velocity=velocity
+        
+    def get_pos(self):
+        return self.pos
+
+    def update(self):
+        self.pos[Y] += self.velcity[Y]
+
+    def bounce(self, AXIS):
+        self.velocity[AXIS] = -self.velocity[AXIS]
+
+    def __str__(self):
+         return f"B<{self.pos, self.velocity}>"
 
 class Game():
     def __init__(self, manager):
@@ -116,7 +133,13 @@ class Game():
     
     
     #movimiento de sword: throw??
-    
+    def throw(self,player): #???
+        self.lock.acquire()
+        p = self.players[player]
+        p.throw()
+        self.swords[player] = p
+        self.lock.release()
+    #movimiento de sword: throw??
     #colisiones y cambio score
     def collide(self,player):
         pass
