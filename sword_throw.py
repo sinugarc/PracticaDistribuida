@@ -8,8 +8,8 @@ Created on Wed Apr 19 10:38:00 2023
 
 import pygame 
 
-WIDTH=360
-HEIGHT=480
+WIDTH=1060
+HEIGHT=600
 FPS=60
 
 WHITE=(255,255,255)
@@ -43,14 +43,20 @@ def draw_text(surf,text,size,x,y):
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image=pygame.Surface((50,40))
-        self.image.fill(GREEN)
-        self.rect=self.image.get_rect()
+        #self.image=pygame.Surface((50,40))
+        self.player_img_peq=pygame.transform.smoothscale(player_img,(70,40))
+        self.image=self.player_img_peq
         
-        self.rect.x=5
+        self.image.set_colorkey(BLACK)
+        self.rect=self.image.get_rect()
+        #self.image_rot=...
+        #self.rect_rot=self.image_rot.get_rect(center)
+        
+        self.rect.x=50
         
         self.rect.y=HEIGHT/2 #en el lado
-        self.angle=0 #esto todavia no sabemos cambiarlo
+        self.rot=0 #esto todavia no sabemos cambiarlo
+        self.rot_speed=0
         self.speedy=0 # en principio la velocidad es constante
         
     def update(self): #de momento solo se mueve verticalmente 
@@ -60,23 +66,40 @@ class Player(pygame.sprite.Sprite):
             self.speedy=-2
         if keystate[pygame.K_DOWN]:
             self.speedy=2
+        if keystate[pygame.K_LEFT]:
+            self.rot_speed=2
+        if keystate[pygame.K_RIGHT]:
+            self.rot_speed=-2
         self.rect.y+=self.speedy
         #para que no se salga 
         if self.rect.top<0: 
             self.rect.y=0
         if self.rect.top>HEIGHT-45:
             self.rect.y=HEIGHT-45
+       
+            
+            
+        self.rot=(self.rot +self.rot_speed)
+        self.rot_speed=0
+        if self.rot>90:
+            self.rot=90
+        if self.rot < -90:
+            self.rot=-90
+        self.image=pygame.transform.rotate(self.player_img_peq,self.rot)
+        #self.rect=self.image.get_rect()
             
     def throw(self):
-        sword=Sword(self.rect.centerx, self.rect.centery, 0)
+        sword=Sword(self.rect.centerx, self.rect.centery, self.rot)
         all_sprites.add(sword)
         swords.add(sword)
 
 class Sword(pygame.sprite.Sprite):
     def __init__(self,x,y,angle):
         pygame.sprite.Sprite.__init__(self)
-        self.image=pygame.Surface((10,10))
-        self.image.fill(YELLOW)
+        
+        self.image=player_img
+        self.image=pygame.transform.smoothscale(self.image,(20,10))
+        self.image.set_colorkey(BLACK)
         self.rect=self.image.get_rect()
         self.rect.centerx= x #empieza con la posicion del player
         self.rect.centery= y
@@ -85,24 +108,27 @@ class Sword(pygame.sprite.Sprite):
         
         
     def update(self):
-        self.rect.x+=self.speed
+        self.rect.centerx+=self.speed
+        self.rect.centery+=self.speed*self.angle/-100
         
         #para que vaya en tal direccion
         #self.rect.y+=self.speed*self.angle
         
         #kill it if it moves off screen
-        # if self.rect.top>0: #or self.rect.top>HEIGHT or self.rect.right>WIDTH or self.rect.left<0:
-        #     self.kill()
+        if self.rect.top>HEIGHT or self.rect.right>WIDTH: #or self.rect.top>HEIGHT or self.rect.right>WIDTH or self.rect.left<0:
+            self.kill()
             
     
 class Target(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image=pygame.Surface((20,20))
-        self.image.fill(RED)
+        #self.image=pygame.Surface((20,20))
+        self.image=target_img
+        self.image=pygame.transform.smoothscale(self.image,(20,80))
+ 
         self.rect=self.image.get_rect()
         
-        self.rect.x=WIDTH-5
+        self.rect.x=WIDTH-10
         
         self.rect.y=HEIGHT/2
         self.speedy=1
@@ -123,7 +149,10 @@ class Target(pygame.sprite.Sprite):
 all_sprites=pygame.sprite.Group()
 swords=pygame.sprite.Group()
 
-
+from os import path
+img_dir = path.join(path.dirname(__file__), 'img')
+player_img = pygame.image.load(path.join(img_dir, "sword.png")).convert_alpha()
+target_img = pygame.image.load(path.join(img_dir, "target2.png")).convert_alpha()
 
 player=Player()
 all_sprites.add(player)
@@ -141,7 +170,7 @@ while running:
         if event.type==pygame.QUIT:
             running=False
         elif event.type==pygame.KEYDOWN:
-            if event.key==pygame.K_a:
+            if event.key==pygame.K_SPACE:
                 player.throw()
     
     #Update
