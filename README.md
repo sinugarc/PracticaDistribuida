@@ -22,12 +22,14 @@ MEJORAS
 
 
 SALA: Listener (acepta dos clients:players)
-- class con pos y funciones de mover
--Game con manager y lista de objetos, movimientos con locks y get_info
--Player con connection
+-class objeto normal con pos y funciones de mover
+-Game con movimientos con locks
+
 
 PLAYER:Client
 -class con parametros y set_pos
--class game con lista de objetos y update segun get_info
 -sprites (no funciones de moviento, solo update segun get_pos de los objetos anteriores)
 -display (analyse events, teclas, graficos, ...)
+
+GENERAL
+Rotacion
