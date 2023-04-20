@@ -10,6 +10,7 @@ SIZE = (700, 525)
 X=0
 Y=1
 DELTA = 30
+DELTA_2 = 2
 
 class Player():
     def __init__(self, side):
@@ -18,6 +19,7 @@ class Player():
             self.pos = [5, SIZE[Y]//2]
         else:
             self.pos = [SIZE[X] - 5, SIZE[Y]//2]
+        self.angle = 0
 
     def get_pos(self):
         return self.pos
@@ -36,10 +38,14 @@ class Player():
             self.pos[Y] = 0
             
     def AngleUp(self):
-        pass
+        self.angle += DELTA_2
+        if self.angle > 90:
+            self.angle = 90
     
     def AngleDown(self):
-        pass
+        self.angle -= DELTA_2
+        if self.angle < -90:
+            self.angle = -90
     
     def __str__(self):
         return f"P<{SIDESSTR[self.side]}, {self.pos}>"
