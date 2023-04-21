@@ -120,11 +120,11 @@ class Game():
         self.players = manager.list( [Player(LEFT_PLAYER), Player(RIGHT_PLAYER)] )
         #En vez de esta lista compartida yo creo que es mas facil si generamos las
         #balas en una grupo de sprites compartidos como en swordthrow
-        #self.swords = manager.list( [Sword(LEFT_PLAYER), Sword(RIGHT_PLAYER)] )
+        self.swords = manager.list( [Sword([0,0],10,0), Sword([0,0],10,0)] )
         #De esta manera podemos ir aqui añadiendo las balas con el throw de player
         self.all_sprites = pygame.sprite.Group()
-        self.swords=manager.list()
-        self.targets= manager.list ([Target(LEFT_PLAYER), Target(RIGHT_PLAYER)] )
+        #self.swords=manager.list()
+        self.targets= manager.list ([Target(LEFT_PLAYER,2), Target(RIGHT_PLAYER,2)] )
         self.score = manager.list( [0,0] )
         self.running = Value('i', 1) # 1 running
         self.lock = Lock()
@@ -204,8 +204,8 @@ class Game():
 
     #otros movimiento: target
 
-    def __str__(self):
-        return f"G<{self.players[RIGHT_PLAYER]}:{self.players[LEFT_PLAYER]}:{self.ball[0]}:{self.running.value}>"
+    # def __str__(self):
+    #     return f"G<{self.players[RIGHT_PLAYER]}:{self.players[LEFT_PLAYER]}:{self.ball[0]}:{self.running.value}>"
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""
