@@ -3,6 +3,9 @@ import traceback
 import pygame
 import sys, os
 
+from os import path
+img_dir = path.join(path.dirname(__file__), 'img')
+
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
@@ -31,7 +34,55 @@ class Player():
     def __init__(self, side):
         self.side = side
         self.pos = [None, None]
-        self.angle= 98
+        self.angle= 0
+
+    def get_pos(self):
+        return self.pos
+
+    def get_side(self):
+        return self.side
+    
+    def get_angle(self):
+        return self.angle
+
+    def set_pos(self, pos):
+        self.pos = pos
+        
+    def set_angle(self,angle):
+        self.angle=angle
+
+    # def __str__(self):
+    #     return f"P<{SIDES[self.side], self.pos}>"
+
+class Sword():
+    def __init__(self, side, pos, velocity,angle):
+        self.side=side
+        self.pos=pos 
+        self.velocity=velocity
+        self.angle=angle
+        
+    def get_side(self):
+        return self.side
+
+    def get_pos(self):
+        return self.pos
+
+    def set_pos(self, pos):
+        self.pos = pos
+        
+    def get_angle(self):
+        return self.angle
+
+    def set_angle(self, angle):
+        self.angle = angle
+
+    # def __str__(self):
+    #     return f"B<{self.pos}>"
+
+class Target():
+    def __init__(self,side):
+        self.side = side
+        self.pos = [None, None]
 
     def get_pos(self):
         return self.pos
@@ -42,30 +93,11 @@ class Player():
     def set_pos(self, pos):
         self.pos = pos
 
-    def __str__(self):
-        return f"P<{SIDES[self.side], self.pos}>"
-
-class Sword():
-    def __init__(self,side):
-        self.pos=[ None, None ]
-
-    def get_pos(self):
-        return self.pos
-
-    def set_pos(self, pos):
-        self.pos = pos
-
-    def __str__(self):
-        return f"B<{self.pos}>"
-
-class Target():
-    def __init__(self,side):
-        pass
 
 class Game():
     def __init__(self):
         self.players = [Player(i) for i in range(2)]
-        self.swords= [Sword(i) for i in range(2)]
+        self.swords= [Sword(i,self.players[i].get_pos, 10, self.players[i].get_angle) for i in range(2)]
         self.targets= [Target(i) for i in range(2)]
         self.score = [0,0]
         self.running = True
@@ -112,54 +144,57 @@ class Game():
     def stop(self):
         self.running = False
 
-    def __str__(self):
-        return f"G<{self.players[RIGHT_PLAYER]}:{self.players[LEFT_PLAYER]}:{self.ball}>"
+    # def __str__(self):
+    #     return f"G<{self.players[RIGHT_PLAYER]}:{self.players[LEFT_PLAYER]}:{self.ball}>"
 
 
-class Paddle(pygame.sprite.Sprite):
-    def __init__(self, player):
-      super().__init__()
-      self.image = pygame.Surface([PLAYER_WIDTH, PLAYER_HEIGHT])
-      self.image.fill(BLACK)
-      self.image.set_colorkey(BLACK)#drawing the paddle
-      self.player = player
-      color = PLAYER_COLOR[self.player.get_side()]
-      pygame.draw.rect(self.image, color, [0,0,PLAYER_WIDTH, PLAYER_HEIGHT])
-      self.rect = self.image.get_rect()
-      self.update()
-
+   
+class PlayerSprite(pygame.sprite.Sprite):
+    def __init__(self,player):
+         pygame.sprite.Sprite.__init__(self)
+         self.image=pygame.Surface((50,40))
+         #self.player_img_peq=pygame.transform.smoothscale(player_img,(70,40))
+         self.image=self.player_img_peq
+         self.image.set_colorkey(BLACK)
+         self.rect=self.image.get_rect()
+         
+         self.player=player
+         self.update()
+         
     def update(self):
-        pos = self.player.get_pos()
-        angle=self.player.get_angle()
-        self.rect.centerx, self.rect.centery = pos
+         pos=self.player.get_pos()
+         angle=self.player.get_angle()
+         self.rect.centerx,self.rect.centery=pos
+         self.image=pygame.transform.rotate(self.player_img_peq,angle)
+         
+        
+#podemos hacer solo un sprite para sword
+#poniendo en la clase player una velocidad, si no se ha dado throw es 0, sino es 1
+#tal que al pasar el player como argumento al sprite este solo se mueve como un player normal
+#y cuando se hace throw se lanza y al llegar fuera de la pantalla se reinicia a la posicion original
 
-    def __str__(self):
-        return f"S<{self.player}>"
 
-
-class BallSprite(pygame.sprite.Sprite):
-    def __init__(self, ball):
-        super().__init__()
-        self.ball = ball
-        self.image = pygame.Surface((BALL_SIZE, BALL_SIZE))
-        self.image.fill(BLACK)
-        self.image.set_colorkey(BLACK)
-        pygame.draw.rect(self.image, BALL_COLOR, [0, 0, BALL_SIZE, BALL_SIZE])
-        self.rect = self.image.get_rect()
+class TargetSprite(pygame.sprite.Sprite):
+    def __init__(self,target):
+        pygame.sprite.Sprite.__init__(self)
+        self.image=pygame.Surface((20,20))
+        #self.image=target_img
+        self.image=pygame.transform.smoothscale(self.image,(20,80))
+ 
+        self.rect=self.image.get_rect()
+        self.target=target
         self.update()
-
     def update(self):
-        pos = self.ball.get_pos()
-        self.rect.centerx, self.rect.centery = pos
-
-
+        pos=self.target.get_pos()
+        self.rect.centerx,self.rect.centery=pos
 
 class Display():
     def __init__(self, game):
         self.game = game
-        self.paddles = [Paddle(self.game.get_player(i)) for i in range(2)]
+        self.targets = [Target(self.game.get_player(i)) for i in range(2)]
+        self.players= [Player(self.game.get_player(i)) for i in range(2)]
 
-        self.ball = BallSprite(self.game.get_ball())
+       
         self.all_sprites = pygame.sprite.Group()
         self.paddle_group = pygame.sprite.Group()
         for paddle  in self.paddles:
@@ -169,8 +204,13 @@ class Display():
 
         self.screen = pygame.display.set_mode(SIZE)
         self.clock =  pygame.time.Clock()  #FPS
-        self.background = pygame.image.load('background.png')
+        
+        #self.background = pygame.image.load('background.png')
+        self.player_img = pygame.image.load(path.join(img_dir, "sword.png")).convert_alpha()
+        self.target_img = pygame.image.load(path.join(img_dir, "target2.png")).convert_alpha()
+
         pygame.init()
+        pygame.display.set_caption("Sword throw")
 
     def analyze_events(self, side):
         events = []
@@ -198,13 +238,14 @@ class Display():
 
     def refresh(self):
         self.all_sprites.update()
-        self.screen.blit(self.background, (0, 0))
+        #self.screen.blit(self.background, (0, 0))
         score = self.game.get_score()
         font = pygame.font.Font(None, 74)
         text = font.render(f"{score[LEFT_PLAYER]}", 1, WHITE)
         self.screen.blit(text, (250, 10))
         text = font.render(f"{score[RIGHT_PLAYER]}", 1, WHITE)
         self.screen.blit(text, (SIZE[X]-250, 10))
+        self.screen.fill(BLACK)
         self.all_sprites.draw(self.screen)
         pygame.display.flip()
 
@@ -216,12 +257,12 @@ class Display():
         pygame.quit()
 
 
-def main(ip_address):
+def main(ip_address,side):
     try:
         with Client((ip_address, 6000), authkey=b'secret password') as conn:
             game = Game()
-            side,gameinfo = conn.recv()
-            print(f"I am playing {SIDESSTR[side]}")
+            gameinfo = conn.recv()
+            print(f"I am playing {side}")
             game.update(gameinfo)
             display = Display(game)
             while game.is_running():
@@ -244,5 +285,6 @@ def main(ip_address):
 if __name__=="__main__":
     ip_address = "127.0.0.1"
     if len(sys.argv)>1:
-        ip_address = sys.argv[1]
-    main(ip_address)
+        #ip_address = sys.argv[1]
+        side=sys.argv[1]
+    main(ip_address,side)
