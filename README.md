@@ -1,18 +1,6 @@
 # PracticaDistribuida
 
 
-SALA:
-Hacer dos players 
-
-Cambio de throw de sword: añadir clase bullet
-Cambio de nombres ball/player etc
-move_sword (lanzar bullet bullseye:cambio de puntuaciones o fuera de rango)
-Falta el def player con comandos
-
-PLAYER
-Falta el angulo https://www.youtube.com/watch?v=5M_-cJP5rk8
-animaciones y graficos
-
 
 MEJORAS
 -Un sprite que reduzca o aumente la velocidad de los targets
@@ -20,16 +8,18 @@ MEJORAS
 -Un sprite que protecta el target( shield)
 
 
+ULTIMO COMMIT
+-Cambio swords a sword
+-Poner side, en gameinfo
+-cambio de throw 
+-lista de swords (ya no son infinita)
+-Sprites: añadir en display, cambiar color
+-Clase target: eliminada, solo sprite
 
-SALA: Listener (acepta dos clients:players)
--class objeto normal con pos y funciones de mover
--Game con movimientos con locks
+FALTA: flip imagenes del lado contrario
+       vaya rapido cuando mueves
+       elimine la imagen de la posicion anterior
+       lanzar espada
+      
 
 
-PLAYER:Client
--class con parametros y set_pos
--sprites (no funciones de moviento, solo update segun get_pos de los objetos anteriores)
--display (analyse events, teclas, graficos, ...)
-
-GENERAL
-Rotacion
