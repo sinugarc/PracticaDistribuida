@@ -25,6 +25,10 @@ Sala_1 - Player_1
        Problemas con el player ( que se mueve)
        Falta confirmar angulos para todos
        Es una mezcla de lo que teniamos y la otra version creada con la lista de swords, se puede acabar esa a ver cual puede ser mas simple.
+
+Sala_f - Player_f
+
+       Version con las espadas separadas del jugador, no va el score
        
       
 
