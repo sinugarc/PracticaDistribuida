@@ -1,21 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Apr 26 10:04:02 2023
-
-@author: alumno
-"""
-
 from multiprocessing.connection import Client
 import traceback
 import pygame
 import sys, os
 
 from os import path
-# pygame.init()
-img_dir = path.join(path.dirname(__file__), 'img')
-# player_img = pygame.image.load(path.join(img_dir, "sword.png")).convert_alpha()
-# target_img = pygame.image.load(path.join(img_dir, "target2.png")).convert_alpha()
 
 
 BLACK = (0, 0, 0)
@@ -42,20 +30,25 @@ FPS = 60
 SIDES = ["left", "right"]
 SIDESSTR = ["left", "right"]
 
+def in_screen(pos):
+    a= pos[Y] > SIZE[Y] or pos[Y] < 0 or pos[X] < 0 or pos[Y] > SIZE[X]
+    return not a
+
 class Player():
     def __init__(self, side):
         self.side = side
         self.pos = [None, None]
         self.angle= 0
-        self.sword=Sword(side,[-333,-333],0,0)
+        self.thrown=False #puede que no lo necesitemos
+        self.sword=Sword(side) #[-333,-333],0,0)
 
 
 class Sword():#nos sobra
-    def __init__(self, side, pos, velocity,angle):
+    def __init__(self, side):# pos, velocity,angle):
         self.side=side
-        self.pos=pos 
-        self.velocity=velocity
-        self.angle=angle
+        self.pos=[-333,-333]
+        self.velocity=[0,0]
+        self.angle=0
 
 class Target():
     def __init__(self,side):
@@ -89,8 +82,6 @@ class Game():
         
     def set_pos_target(self, side, pos): 
         self.targets[side].posy=pos
-        
-    
         
     def set_score(self, score):
         self.score = score
@@ -150,29 +141,33 @@ class SwordSprite(pygame.sprite.Sprite):
          pygame.sprite.Sprite.__init__(self)
          player_img = pygame.image.load("sword.png").convert_alpha()
          self.player_img_peq=pygame.transform.smoothscale(player_img,(40,10))
-         self.sw=player
-         if self.sw.side==1:
+         if player.side==1:
             self.player_img_peq=pygame.transform.rotate(self.player_img_peq,180)
          
          self.image=self.player_img_peq
          self.rect=self.image.get_rect()
          
+         
+         self.pos_original=player.pos
+         self.sword=player.sword
+         
          self.update()
          
     def update(self):
       
-         pos=self.sw.sword.pos
-         angle=self.sw.sword.angle
-         self.rect.centerx,self.rect.centery=pos
+         pos=self.sword.pos
+         angle=self.sword.angle
+         if in_screen(pos):
+             self.rect.centerx,self.rect.centery=pos
+         else:
+             self.rect.centerx,self.rect.centery=self.pos_original
            
-         if self.sw.side==0:
+         if self.sword.side==0:
              self.image=pygame.transform.rotate(self.player_img_peq,angle)
          else:
              self.image=pygame.transform.rotate(self.player_img_peq,-angle)
 
-        
-
-#Target es tiene que controlar desde la sala para ir sincrono         
+              
 class TargetSprite(pygame.sprite.Sprite):
     def __init__(self,target):
         pygame.sprite.Sprite.__init__(self)
@@ -197,9 +192,9 @@ class Display():
         self.game = game
         self.screen = pygame.display.set_mode(SIZE)
         self.clock =  pygame.time.Clock()  #FPS
-        self.targets = [TargetSprite(self.game.targets[i]) for i in range(2)]
+        self.targets= [TargetSprite(self.game.targets[i]) for i in range(2)]
         self.players= [PlayerSprite(self.game.players[i]) for i in range(2)]
-        self.swords=[SwordSprite(self.game.players[i]) for i in range(2)]
+        self.swords = [SwordSprite(self.game.players[i])  for i in range(2)]
        
         self.all_sprites = pygame.sprite.Group()
         self.all_sprites.add(self.targets[0])

@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Apr 26 10:03:19 2023
-
-@author: alumno
-"""
-
 from multiprocessing.connection import Listener
 from multiprocessing import Process, Manager, Value, Lock
 import traceback
@@ -56,6 +48,10 @@ class Player():
             self.angle = -90
     
 
+def in_screen(pos):
+    a= pos[Y] > SIZE[Y] or pos[Y] < 0 or pos[X] < 0 or pos[Y] > SIZE[X]
+    return not a
+
 class Sword():
     def __init__(self, side):
         self.side=side
@@ -70,25 +66,28 @@ class Sword():
             self.pos[X] += self.velocity[X]
             self.pos[Y] += self.velocity[Y]
             
-            if self.pos[Y] > SIZE[Y] or self.pos[Y] < 0 or self.pos[X] < 0 or self.pos[Y] > SIZE[X]:
+            #if self.pos[Y] > SIZE[Y] or self.pos[Y] < 0 or self.pos[X] < 0 or self.pos[Y] > SIZE[X]:
+            if in_screen(self.pos):
                 self.pos=[-333,-333]
                 self.velocity=[0,0]
                 self.angle=0
                 dead = True
                 
-        else:
-            pass
+        # else:
+        #     pass
         return dead
             
     def throw(self,pos,ang):
         self.pos=pos
         self.angle=ang
         if self.side == 1:
-            self.velocity[X]=-10*math.cos(ang*2*math.pi/360)
-            self.velocity[Y]=-10*math.sin(ang*2*math.pi/360)
+            self.velocity[X]=-12*math.cos(ang*2*math.pi/360)
+            self.velocity[Y]=12*math.sin(ang*2*math.pi/360) 
+            #no seria velX =pos y velY=pos*angle
         else:
-            self.velocity[X]=10*math.cos(ang*2*math.pi/360)
-            self.velocity[Y]=-10*math.sin(ang*2*math.pi/360)
+            self.velocity[X]=12*math.cos(ang*2*math.pi/360)
+            self.velocity[Y]=-12*math.sin(ang*2*math.pi/360)
+        
    
 class Target():
     def __init__(self,side):
@@ -99,7 +98,7 @@ class Target():
         else:
             self.posx=-5
         self.posy=SIZE[Y]//2
-        self.vel=10
+        self.vel=2
         
     def update(self):
         self.posy+=self.vel 
@@ -165,14 +164,14 @@ class Game():
         self.players[player]=p
         self.lock.release()
         
-    def targ(self,player):
+    def targ(self,player): #move_target
         self.lock.acquire()
         t = self.targets[player]
         t.update()
         self.targets[player] = t
         self.lock.release()
        
-    def swrd(self,player):
+    def swrd(self,player): #move_sword
         self.lock.acquire()
         p = self.players[player]
         s = p.sword
@@ -182,16 +181,19 @@ class Game():
         self.players[player] = p
         self.lock.release()
     
-    #Cambio score
-    def collide(self,side):
+    
+    def collide(self,side): #collide sword-target
         self.lock.acquire()
+        p = self.players[player]
+        p.thrown=False
+        self.players[player] = p
+        #estaria dead el p.sword 
         
-        self.players[side].thrown=False
-        self.players[side].sword=0 #no iniciado
+        #self.players[side].sword=0 
         
         a=self.score[side]
         a=a+1
-        self.score[side]=a
+        self.score[side]=a #cambio de score
     
         self.lock.release()
         
@@ -201,14 +203,19 @@ class Game():
         info = {
             'pos_left_player': self.players[LEFT_PLAYER].pos,
             'pos_right_player': self.players[RIGHT_PLAYER].pos,
+            
             'angle_left_player': self.players[LEFT_PLAYER].angle,
             'angle_right_player': self.players[RIGHT_PLAYER].angle,
+            
             'pos_left_sword': self.players[LEFT_PLAYER].sword.pos,
             'pos_right_sword': self.players[RIGHT_PLAYER].sword.pos,
+            
             'angle_left_sword': self.players[LEFT_PLAYER].sword.angle,
             'angle_right_sword': self.players[RIGHT_PLAYER].sword.angle,
+            
             'pos_left_target': self.targets[LEFT_PLAYER].posy,
             'pos_right_target': self.targets[RIGHT_PLAYER].posy,
+            
             'score': list(self.score),
             'is_running': self.running.value == 1
         }
