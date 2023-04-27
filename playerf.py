@@ -2,12 +2,7 @@ from multiprocessing.connection import Client
 import traceback
 import pygame
 import sys, os
-
 from os import path
-# pygame.init()
-img_dir = path.join(path.dirname(__file__), 'img')
-# player_img = pygame.image.load(path.join(img_dir, "sword.png")).convert_alpha()
-# target_img = pygame.image.load(path.join(img_dir, "target2.png")).convert_alpha()
 
 
 BLACK = (0, 0, 0)
@@ -115,7 +110,7 @@ class PlayerSprite(pygame.sprite.Sprite):
          pygame.sprite.Sprite.__init__(self)
          self.player=player
          player_img = pygame.image.load("sword.png").convert_alpha()
-         self.player_img_peq=pygame.transform.smoothscale(player_img,(70,40))
+         self.player_img_peq=pygame.transform.smoothscale(player_img,(60,90))
          if self.player.side==1:
              self.player_img_peq=pygame.transform.rotate(self.player_img_peq,180)
          self.image=self.player_img_peq
@@ -137,11 +132,17 @@ class SwordSprite(pygame.sprite.Sprite):
     def __init__(self,sword):
          pygame.sprite.Sprite.__init__(self)
          self.sword=sword
-         player_img = pygame.image.load("sword.png").convert_alpha()
+         if sword.side==0:
+             
+             player_img = pygame.image.load("laser1.png").convert_alpha()
+         else:
+             player_img = pygame.image.load("laser2.png").convert_alpha()
          self.player_img_peq=pygame.transform.smoothscale(player_img,(40,10))
+         
          if self.sword.side==1:
             self.player_img_peq=pygame.transform.rotate(self.player_img_peq,180)
          self.image=self.player_img_peq
+         
          self.rect=self.image.get_rect()
          
          self.update()
@@ -149,6 +150,7 @@ class SwordSprite(pygame.sprite.Sprite):
     def update(self):
       
          pos=self.sword.pos
+         
          angle=self.sword.angle
          self.rect.centerx,self.rect.centery=pos
            
@@ -183,6 +185,8 @@ class Display():
         self.game = game
         self.screen = pygame.display.set_mode(SIZE)
         self.clock =  pygame.time.Clock()  #FPS
+        self.background = pygame.image.load('back.png')
+        self.background=pygame.transform.smoothscale(self.background,SIZE)
         self.targets = [TargetSprite(self.game.targets[i]) for i in range(2)]
         self.players= [PlayerSprite(self.game.players[i]) for i in range(2)]
         self.swords=[SwordSprite(self.game.swords[i]) for i in range(2)]
@@ -232,7 +236,8 @@ class Display():
 
     def refresh(self):
         self.all_sprites.update()
-        self.screen.fill(BLACK)
+        self.screen.blit(self.background, (0, 0))
+        # self.screen.fill(BLACK)
         score = self.game.score
         font = pygame.font.Font(None, 74)
         text = font.render(f"{score[LEFT_PLAYER]}", 1, WHITE)

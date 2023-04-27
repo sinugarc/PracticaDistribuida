@@ -99,8 +99,8 @@ class Target():
         if self.posy<0:
             self.posy=0
             self.vel*=-1
-        if self.posy>SIZE[Y]:
-            self.posy=SIZE[Y]
+        if self.posy>SIZE[Y]-70:
+            self.posy=SIZE[Y]-70
             self.vel*=-1
     
 
