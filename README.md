@@ -27,9 +27,17 @@ que recibe la información de las teclas presionadas, controla también los coll
 SALAF.PY
 
 Es el archivo "broker" que controla los movimientos de los jugadores, recibiendo información y enviandola a los respectivos players.
-Existe una clase para jugador, espada y diana aparte de la clase general Game que inicializa las clase anteriores y controla el juego.
-Actualiza el score según la información transmitida a través del gameinfo.
 
+La clase player inicializa con los atributos de posición y lado, el ángulo así como un booleano que nos permitirá saber si se ha disparado o no.
+Los métodos dentro de la clase player se encargan de actualizar la posición y ángulo.
+
+La clase sword se inicializa en una posición fuera de la pantalla, con velocidad 0 y ángulo 0. El método update actualiza la posicion del sword si se ha lanzado y comprueba si se ha salido del tablero; devolviendo un booleano indicando si se ha salido del tablero. El método throw actualiza la posición y ángulo desde donde se lanza aumentando la velocidad para que se mueva.
+
+La clase target se inicializa con el lado, la posición y la velocidad. El método update actualiza la posición en y comprobando que no se salga del área de juego.
+
+La clase Game se inicializa generando listas compartidas de jugadores, dianas, espadas y la puntuación. También crea una variable running y un semáforo lock que garantice la exclusión mutua de los elementos compartidos. Tiene métodos para actualizar la información. El método ger_info crea un diccionario con la información necesaria para enviarsela a los jugadores. Los collide se encaragan de reinicializar la información de los swords y actualizar la puntuación si es necesario. El método throw comprueba si el jugador ya ha lanzado  y si no llama al método throw de la clase sword con la posición y ángulo del jugador.
+
+Fuera de las clases en la función player se recibe la información de los jugadores y ejecuta los métodos de la clase Game acorde a dicha información. Además se encarga de llamar a los métodos que actualizan la posición del target y sword, luego envía la información actualizada a los jugadores.
 
 SWORD_THROW.PY
 
