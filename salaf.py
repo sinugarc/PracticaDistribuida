@@ -1,4 +1,3 @@
-
 from multiprocessing.connection import Listener
 from multiprocessing import Process, Manager, Value, Lock
 import math
@@ -14,7 +13,8 @@ X=0
 Y=1
 DELTA = 20
 DELTA_2 = 10
-
+VELOCITY_SWORD=15
+VELOCITY_TARGET=2
 
 class Player():
     def __init__(self, side):
@@ -76,11 +76,11 @@ class Sword():
         self.pos=pos
         self.angle=ang
         if self.side == 1:
-            self.velocity[X]=-15*math.cos(ang*2*math.pi/360)
-            self.velocity[Y]=15*math.sin(ang*2*math.pi/360)
+            self.velocity[X]=-VELOCITY_SWORD*math.cos(ang*2*math.pi/360)
+            self.velocity[Y]=VELOCITY_SWORD*math.sin(ang*2*math.pi/360)
         else:
-            self.velocity[X]=15*math.cos(ang*2*math.pi/360)
-            self.velocity[Y]=-15*math.sin(ang*2*math.pi/360)
+            self.velocity[X]=VELOCITY_SWORD*math.cos(ang*2*math.pi/360)
+            self.velocity[Y]=-VELOCITY_SWORD*math.sin(ang*2*math.pi/360)
         
    
 class Target():
@@ -92,7 +92,7 @@ class Target():
         else:
             self.posx=-5
         self.posy=SIZE[Y]//2
-        self.vel=2
+        self.vel=VELOCITY_TARGET
         
     def update(self):
         self.posy+=self.vel 
@@ -178,9 +178,7 @@ class Game():
         self.players[player] = p
         self.lock.release()
     
-    #Cambio score
     def collide(self,side):
-        print('collide')
         self.lock.acquire()
         s0 = self.swords[side]
         p0 = self.players[side]
@@ -204,13 +202,12 @@ class Game():
               p0 = self.players[i]
 
               if s0.side==0:
-                  s0.pos=[-333,-400]
+                  s0.pos=[-333,-400] #reinicia el sword a la posicion original
               else:
                   s0.pos=[-333,-333]
               s0.velocity = [0, 0]
 
               p0.thrown = False
-              # p0.sword = s0
               self.players[i] = p0
               self.swords[i] = s0
           self.lock.release()
@@ -238,11 +235,11 @@ class Game():
 def player(side, conn, game):
     try:
         print(f"starting player {SIDESSTR[side]}:{game.get_info()}")
-        conn.send( (side, game.get_info()) )
+        conn.send( (side, game.get_info()) ) #manda la informacion a cada player
         while game.is_running():
             command = ""
             while command != "next":
-                command = conn.recv()
+                command = conn.recv() #recibe informacion del player
                 if command == "up":
                     game.moveUp(side)
                 elif command == "down":
@@ -253,7 +250,7 @@ def player(side, conn, game):
                     game.AngleDown(side)
                 elif command == "space":
                     game.throw(side)
-                elif command == "collide": #collide entre swords
+                elif command == "collide": 
                     game.collide(side)
                 elif command == "collide swords":
                         game.collide_swords()
@@ -264,7 +261,7 @@ def player(side, conn, game):
                 game.targ(0)
                 game.swrd(1)
                 game.swrd(0)
-            conn.send(game.get_info())
+            conn.send(game.get_info()) #manda la informacion a cada player
     except:
         traceback.print_exc()
         conn.close()
